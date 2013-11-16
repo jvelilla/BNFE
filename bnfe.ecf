@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-11-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-11-0 http://www.eiffel.com/developers/xml/configuration-1-11-0.xsd" name="bnfe" uuid="F81A73AA-77CF-42C8-B7DF-E083CBB75505" library_target="bnfe">
+	<description>BNF-E Library</description>
+	<target name="bnfe">
+		<root all_classes="true"/>
+		<option warning="true" void_safety="transitional" syntax="provisional">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
+		<library name="base_extension" location="$ISE_LIBRARY\library\base_extension\base_extension-safe.ecf"/>
+		<library name="store" location="$ISE_LIBRARY\library\store\store-safe.ecf"/>
+		<library name="test_set_helper" location="C:\Users\lrix\Documents\Eiffel User Files\7.3\projects\test_set_helper\test_set_helper.ecf"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing-safe.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time-safe.ecf"/>
+		<cluster name="bnfe" location=".\" recursive="true">
+			<file_rule>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>/CVS$</exclude>
+				<exclude>/.svn$</exclude>
+			</file_rule>
+		</cluster>
+	</target>
+	<target name="test" extends="bnfe">
+		<root class="APPLICATION" feature="make"/>
+	</target>
+</system>
