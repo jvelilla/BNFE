@@ -16,9 +16,11 @@ inherit
 feature -- Test routines
 
 	test_bnfe
-			-- New test routine
+			-- Tests about BNFE_CONSTRUCT
+		local
+			l_construct: BNFE_CONSTRUCT
 		do
-			assert ("not_implemented", False)
+			create l_construct.make_with_objects (["My_construct"])
 		end
 
 end

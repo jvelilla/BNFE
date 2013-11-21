@@ -3,12 +3,17 @@
 	<description>BNF-E Library</description>
 	<target name="bnfe">
 		<root all_classes="true"/>
+		<file_rule>
+			<description>Exclude Git folder</description>
+			<exclude>git</exclude>
+		</file_rule>
 		<option warning="true" void_safety="transitional" syntax="provisional">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
 		<setting name="console_application" value="true"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
 		<library name="base_extension" location="$ISE_LIBRARY\library\base_extension\base_extension-safe.ecf"/>
+		<library name="framework" location="C:\Users\lrix\Documents\GitHub\framework\framework.ecf"/>
 		<library name="store" location="$ISE_LIBRARY\library\store\store-safe.ecf"/>
 		<library name="test_set_helper" location="C:\Users\lrix\Documents\Eiffel User Files\7.3\projects\test_set_helper\test_set_helper.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing-safe.ecf"/>
