@@ -1,6 +1,10 @@
 ﻿note
-	description: "Summary description for {BNFE_PRODUCTION}."
-	author: ""
+	description: "[
+				Representation of a BNFE Production.
+				
+				Consists of one Construct with many
+				component parts.
+					]"
 	date: "$Date$"
 	revision: "$Revision$"
 
@@ -8,40 +12,94 @@ class
 	BNFE_PRODUCTION
 
 inherit
-	BNFE_CONSTRUCT
+	BNFE_ROOT
+		redefine
+			creation_objects_anchor,
+			make_with_objects
+		end
 
 create
-	make_with_objects
+	make_with_objects,
+	make_with_name
+
+feature {NONE} -- Initialization
+
+	make_with_name (a_name: like name)
+			-- Initialize Current with `a_name'.
+		do
+			make_with_objects ([a_name, create {BNFE_COMPONENT}.make_with_objects ([a_name])])
+		end
+
+	make_with_objects (a_objects: attached like creation_objects_anchor)
+			--<Precursor>
+		do
+			Precursor (a_objects)
+			construct := a_objects.construct
+		end
+
+feature {NONE} -- Implementation: Creation Objects
+
+	creation_objects_anchor: detachable TUPLE [name: like name; construct: like construct]
+			-- Creation objects anchor for Current
 
 feature -- Access
 
-	right_side: ARRAYED_LIST [like Current]
-			-- Definition: Production
-			-- A production is a formal description of the structure of all specimens of a
-			--	non-terminal construct. It has the form
-			-- Construct =Δ right-side
-			-- where right-side describes how to obtain specimens of the Construct.
+	construct: BNFE_COMPONENT
+
+	parts: ARRAYED_LIST [attached like part_anchor]
+			-- Zero, one, or more Right-side Parts of Current consists of.
+			--| This is a list of BNFE_PRODUCTION_KINDs, which are one of
+			--		three variants:
+			--	1. Aggregrate
+			--	2. Choice
+			--	3. Repitition
 		attribute
-			create Result.make (100)
+			create Result.make (10)
 		end
 
-feature -- Status Report
+	specimen: ARRAYED_LIST [STRING]
+			-- Zero, one, or more Specimen of Current.
+		attribute
+			create Result.make (10)
+		end
 
-	is_terminal: BOOLEAN
-			-- Is Current "terminal"
-			-- 8.2.5 Definition: Terminal, non-terminal, token
-			-- Specimens of a terminal construct have no further syntactical structure. Examples include:
-			-- 	• Reserved words such as `if' and `Result'.
-			-- 	• Manifest constants such as the integer `234'; symbols such as `;' (semicolon) and `+' (plus sign).
-			-- 	• Identifiers (used to denote classes, features, entities) such as {LINKED_LIST} and `put'.
-			-- The specimens of terminal constructs are called tokens.
+feature -- Settings
+
+	add_part (a_part: attached like part_anchor)
+			-- Add `a_part' to `parts' of Current.
 		do
-			Result := right_side.count = 0
+			parts.force (a_part)
+		ensure
+			has_part: parts.has (a_part)
 		end
 
-feature {NONE} -- Implementation: Constants
+	set_parts (a_parts: like parts)
+			-- Set `a_parts' into `parts' of Current.
+		do
+			parts := a_parts
+		ensure
+			parts_set: parts ~ a_parts
+		end
 
-	consists_of_identifier: STRING_32 = "=Δ"
-			-- The "consists of" identifier as a string.
+	add_specimen (a_specimen: STRING)
+			-- Add `a_specimen' to `specimen' of Current.
+		do
+			specimen.force (a_specimen)
+		ensure
+			has_specimen: specimen.has (a_specimen)
+		end
 
+	set_specimen (a_specimen: like specimen)
+			-- Set `a_specimen' into `specimen' of Current.
+		do
+			specimen := a_specimen
+		ensure
+			specimen_set: specimen ~ a_specimen
+		end
+
+feature {NONE} -- Implementation: Anchors
+
+	part_anchor: detachable BNFE_PRODUCTION_KIND
+			-- Type anchor of `parts'.
+			
 end
