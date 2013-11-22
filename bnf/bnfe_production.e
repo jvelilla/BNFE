@@ -15,7 +15,8 @@ inherit
 	BNFE_ROOT
 		redefine
 			creation_objects_anchor,
-			make_with_objects
+			make_with_objects,
+			out
 		end
 
 create
@@ -32,6 +33,7 @@ feature {NONE} -- Initialization
 
 	make_with_objects (a_objects: attached like creation_objects_anchor)
 			--<Precursor>
+			-- Initialize Current with `a_objects' `construct'.
 		do
 			Precursor (a_objects)
 			construct := a_objects.construct
@@ -45,6 +47,7 @@ feature {NONE} -- Implementation: Creation Objects
 feature -- Access
 
 	construct: BNFE_COMPONENT
+			-- Left-side Construct of Current.
 
 	parts: ARRAYED_LIST [attached like part_anchor]
 			-- Zero, one, or more Right-side Parts of Current consists of.
@@ -97,9 +100,40 @@ feature -- Settings
 			specimen_set: specimen ~ a_specimen
 		end
 
+feature -- Status Report
+
+	out: like {ANY}.out
+			--<Precursor>
+		do
+			create Result.make_empty
+			Result.append_character ('%N')
+			Result.append_string_general (construct.name)
+			Result.append_string_general (" ::=%N")
+			across parts as ic_parts loop
+				Result.append_character ('%T')
+				Result.append_string_general (ic_parts.item.out)
+				Result.append_character ('%N')
+			end
+			Result.append_character ('%N')
+			Result.append_string_general (construct.out)
+		end
+
+	deep_out: like {ANY}.out
+			-- Process Current `out' and then `out' of each `part's `construct's `production'
+		do
+			Result := out
+			across parts as ic_parts loop
+				across ic_parts.item.components as ic_components loop
+					if attached ic_components.item.production as al_production then
+						Result.append_string_general (al_production.out)
+					end
+				end
+			end
+		end
+
 feature {NONE} -- Implementation: Anchors
 
 	part_anchor: detachable BNFE_PRODUCTION_KIND
 			-- Type anchor of `parts'.
-			
+
 end

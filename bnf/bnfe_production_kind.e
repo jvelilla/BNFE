@@ -1,8 +1,9 @@
 note
-	description: "Summary description for {BNFE_PRODUCTION_KIND}."
-	author: ""
-	date: "$Date$"
-	revision: "$Revision$"
+	description: "[
+					Representation of a Kind of Production: Aggregate, Choice, or Repitition.
+					]"
+	date: "$Date: $"
+	revision: "$Revision: $"
 
 class
 	BNFE_PRODUCTION_KIND
@@ -101,9 +102,6 @@ feature -- Access
 			create Result.make (10)
 		end
 
-	component_anchor: detachable BNFE_COMPONENT
-			-- Type anchor for `components'.
-
 feature -- Status Report
 
 	is_aggregate: BOOLEAN
@@ -122,14 +120,32 @@ feature -- Status Report
 		do
 			create Result.make_empty
 			across components as ic_components loop
+				if ic_components.is_first then
+					if is_choice or is_repitition then
+						Result.append_character ('{')
+					end
+				end
+
 				Result.append_string_general (ic_components.item.name)
-				if is_choice then
+
+				if is_choice and not ic_components.is_last then			-- CHOICE Append " | "
 					Result.append_character (' ')
 					Result.append_character ('|')
+					Result.append_character (' ')
+				elseif is_choice and ic_components.is_last then			-- CHOICE Close with '}'
+					Result.append_character ('}')
+				elseif is_aggregate and not ic_components.is_last then	-- AGGREGATE Append " & "
+					Result.append_character (' ')
+					Result.append_character ('&')
+					Result.append_character (' ')
+				elseif is_repitition and ic_components.is_last then		-- REPITITION Close with '}'
+					Result.append_character ('}')
 				end
 			end
-			if Result [Result.count] = '|' then
-				Result.remove_tail (1)
+			if is_repitition and is_one_or_more then
+				Result.append_character ('+')
+			elseif is_repitition then
+				Result.append_character ('*')
 			end
 		end
 
@@ -178,7 +194,16 @@ feature -- Settings
 			not_aggregate_or_choice: not is_aggregate and not is_choice
 		end
 
+feature {NONE} -- Implementation: Anchors
+
+	component_anchor: detachable BNFE_COMPONENT
+			-- Type anchor for `components'.
+
 invariant
 	repitition_only_one_part: is_repitition implies components.count <= 1
+	aggregate_not_choice_or_repitition: is_aggregate implies (not is_choice and not is_repitition)
+	choice_not_aggregate_or_repitition: is_choice implies (not is_aggregate and not is_repitition)
+	repitition_not_aggregate_or_choice: is_repitition implies (not is_choice and not is_aggregate)
+	component_anchor: not attached component_anchor
 
 end

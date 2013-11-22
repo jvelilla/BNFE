@@ -15,7 +15,8 @@ inherit
 	BNFE_FEATURE
 		redefine
 			make_with_objects,
-			creation_objects_anchor
+			creation_objects_anchor,
+			out
 		end
 
 create
@@ -46,6 +47,21 @@ feature -- Settings
 			-- Set `result_type' with `a_result_type'.
 		do
 			result_type := a_result_type
+		end
+
+feature -- Status Report
+
+	out: like {ANY}.out
+			--<Precursor>
+		do
+			Result := name.twin
+			Result.append_character (':')
+			Result.append_character (' ')
+			if attached {BNFE_FEATURE} result_type as al_type then
+				Result.append_string_general (al_type.name)
+			elseif attached result_type as al_type and then attached al_type.generating_type as al_generating_type then
+				Result.append_string_general (al_generating_type)
+			end
 		end
 
 end

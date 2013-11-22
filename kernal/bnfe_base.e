@@ -34,6 +34,9 @@ feature -- Access
 
 	name: STRING
 			-- Name of Current.
+		attribute
+			create Result.make_empty
+		end
 
 feature -- Settings
 
@@ -46,5 +49,8 @@ feature -- Settings
 		ensure
 			name_set: name.same_string (a_name)
 		end
+
+invariant
+	valid_name: across name as ic_name all ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789").has (ic_name.item) end
 
 end
