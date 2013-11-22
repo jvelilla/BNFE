@@ -1,4 +1,4 @@
-note
+﻿note
 	description: "[
 		Eiffel tests that can be executed by testing tool.
 	]"
@@ -19,35 +19,64 @@ feature -- Test routines
 			-- Tests about BNFE_PRODUCTION.out
 		local
 			l_production: BNFE_PRODUCTION
-			l_kind: BNFE_PRODUCTION_KIND
-			l_component, l_next_component: BNFE_COMPONENT
+			l_part: BNFE_PRODUCTION_KIND
+			l_root_component,
+			l_component,
+			l_alt_component: BNFE_COMPONENT
 		do
-			create l_production.make_with_name ("Bnfe")
-			create l_kind.make_as_named_repitition (False, "Production")
-			l_production.add_part (l_kind)
-				-- First component ...
-				-- Production: Production
-			l_component := l_kind.components [1]
---			create l_kind.make_as_aggregate_with_components (<<create {BNFE_COMPONENT}.make_with_objects (["Construct"]), create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"])>>)
-			create l_kind.make_as_aggregate
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Construct"]))
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"]))
-			check attached l_kind.component_by_name ("Kind_of_production") as al_component then
-				l_next_component := al_component
-			end
-			assert_strings_equal ("Kind_of_production", "Kind_of_production", l_next_component.name)
-			l_component.Production.add_part (l_kind)
-			create l_kind.make_as_repitition (False)
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Specimen"]))
-			l_component.Production.add_part (l_kind)
---			assert_strings_equal ("level_2", deep_production_string, l_production.deep_out)
-				-- Production: Kind_of_production
-			create l_kind.make_as_choice
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Aggregate"]))
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Choice"]))
-			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Repitition"]))
-			l_next_component.Production.add_part (l_kind)
-			assert_strings_equal ("level_2", deep_production_string, l_production.deep_out)
+				-- Bnfe production
+			create l_root_component.make_with_objects (["Bnfe"])
+			l_production := l_root_component.Production
+			create l_part.make_as_named_repitition (False, "Production")
+			l_production.add_part (l_part)
+
+				-- Production production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Production")
+			l_production := l_component.Production
+			create l_part.make_as_aggregate_with_components_array (<<create {BNFE_COMPONENT}.make_with_objects (["Construct"]), create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"])>>)
+			l_production.add_part (l_part)
+			create l_part.make_as_repitition_with_component (False, create {BNFE_COMPONENT}.make_with_objects (["Specimen"]))
+			l_production.add_part (l_part)
+
+				-- Kind_of_production production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Kind_of_production")
+			l_production := l_component.Production
+			create l_part.make_as_choice_with_components_array (<<create {BNFE_COMPONENT}.make_with_objects (["Aggregate"]), create {BNFE_COMPONENT}.make_with_objects (["Choice"]), create {BNFE_COMPONENT}.make_with_objects (["Repitition"])>>)
+			l_production.add_part (l_part)
+
+				-- Aggregate production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Aggregate")
+			l_production := l_component.Production
+			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Component"]))
+			l_component.Production.add_specimen ("Something ::= This That The_other (e.g. Something consists of this, that and the other).")
+			l_production.add_part (l_part)
+
+				-- Choice production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Choice")
+			l_production := l_component.Production
+			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Choice_construct"]))
+			l_production.add_part (l_part)
+
+				-- Choice production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Repitition")
+			l_production := l_component.Production
+			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Repitition_construct"]))
+			l_production.add_part (l_part)
+
+				-- Choice_construct production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Choice_construct")
+			l_production := l_component.Production
+			create l_part.make_as_aggregate_with_components_array (<<create {BNFE_COMPONENT}.make_with_objects (["Component"]), create {BNFE_COMPONENT}.make_with_objects (["Comma_character"]), create {BNFE_COMPONENT}.make_with_objects (["Bar_character"])>>)
+			l_production.add_part (l_part)
+
+				-- Repitition_construct production
+			l_component := l_root_component.Production.attached_deep_component_by_name ("Repitition_construct")
+			l_production := l_component.Production
+			create l_part.make_as_aggregate_with_components_array (<<create {BNFE_COMPONENT}.make_with_objects (["Component"]), create {BNFE_COMPONENT}.make_with_objects (["Plus_character"]), create {BNFE_COMPONENT}.make_with_objects (["Asterick_character"])>>)
+			l_production.add_part (l_part)
+
+				-- Final test of `deep_out'
+			assert_strings_equal ("bnfe_deep_out", deep_production_string, l_root_component.Production.deep_out)
 		end
 
 	test_bnfe
@@ -80,7 +109,7 @@ feature -- Test routines
 			l_kind.add_component (l_component)
 			create l_component.make_with_objects (["The_other"])
 			l_kind.add_component (l_component)
-			assert_strings_equal ("repitition_out_false", "{This | That | The_other}", l_kind.out)
+			assert_strings_equal ("repitition_out_false", "(This | That | The_other)", l_kind.out)
 
 				-- Aggregate
 			create l_kind.make_as_aggregate
@@ -153,7 +182,7 @@ My_production ::=
 	{That}*
 	{The_other}+
 	Some_aggregate_1, Some_aggregate_2, Some_aggregate_3
-	{Some_choice_1 | Some_aggregate_2 | Some_aggregate_3}
+	(Some_choice_1 | Some_aggregate_2 | Some_aggregate_3)
 
 
 ]"
@@ -167,6 +196,30 @@ Bnfe ::=
 Production ::=
 	Construct, Kind_of_production
 	{Specimen}*
+
+
+Kind_of_production ::=
+	(Aggregate | Choice | Repitition)
+
+
+Aggregate ::=
+	{Component}+
+
+
+Choice ::=
+	{Choice_construct}+
+
+
+Choice_construct ::=
+	Component, Comma_character, Bar_character
+
+
+Repitition ::=
+	{Repitition_construct}+
+
+
+Repitition_construct ::=
+	Component, Plus_character, Asterick_character
 
 
 ]"

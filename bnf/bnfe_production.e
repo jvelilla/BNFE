@@ -69,6 +69,32 @@ feature -- Access
 	is_detachable: BOOLEAN
 			-- Can Current be Void?
 
+	attached_deep_component_by_name (a_name: like {BNFE_COMPONENT}.name): BNFE_COMPONENT
+			-- Find attached version of `deep_component_by_name' based on `a_name'.
+		do
+			check attached_result: attached deep_component_by_name (a_name) as al_component then Result := al_component end
+		end
+
+	deep_component_by_name (a_name: like {BNFE_COMPONENT}.name): detachable BNFE_COMPONENT
+			-- Find `a_name' in Current or contained components in parts.
+		do
+			from parts.start
+			until parts.exhausted or attached Result
+			loop
+				if attached parts.item_for_iteration.component_by_name (a_name) as al_component then
+					Result := al_component
+				else
+					from parts.item_for_iteration.components.start
+					until parts.item_for_iteration.components.exhausted or attached Result
+					loop
+						Result := parts.item_for_iteration.components.item_for_iteration.Production.deep_component_by_name (a_name)
+						parts.item_for_iteration.components.forth
+					end
+				end
+				parts.forth
+			end
+		end
+
 feature -- Settings
 
 	set_is_detachable (a_is_detachable: like is_detachable)
@@ -145,7 +171,7 @@ feature -- Status Report
 					if attached ic_components.item.production as al_production
 						and then al_production.parts.count > 0
 					then
-						Result.append_string_general (al_production.out)
+						Result.append_string_general (al_production.deep_out)
 					end
 				end
 			end
