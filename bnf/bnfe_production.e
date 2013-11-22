@@ -159,7 +159,20 @@ feature -- Status Report
 				end
 			end
 			Result.append_character ('%N')
+			Result.append_string_general (specimen_block)
 			Result.append_string_general (construct.out)
+		end
+
+	specimen_block: STRING
+			-- Block of Specimen of Current.
+		do
+			create Result.make_empty
+			across specimen as ic_specimen loop
+				Result.append_character ('%T')
+				Result.append_string_general ("-- Example: ")
+				Result.append_string_general (ic_specimen.item)
+				Result.append_character ('%N')
+			end
 		end
 
 	deep_out: like {ANY}.out

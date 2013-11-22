@@ -16,7 +16,7 @@ inherit
 
 create
 	make_with_objects
-	
+
 feature -- Access
 
 	features: ARRAYED_LIST [BNFE_FEATURE]

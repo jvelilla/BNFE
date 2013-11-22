@@ -15,18 +15,24 @@ class
 inherit
 	BNFE_COMMAND
 		rename
-			creation_objects_anchor as command_creation_objects_anchor
+			creation_objects_anchor as command_creation_objects_anchor,
+			result_type_signature as command_result_type_signature
 		undefine
 			make_with_objects
 		redefine
 			out
+		select
+			arguments_signature
 		end
 
 	BNFE_ATTRIBUTE [G]
+		rename
+			arguments_signature as attribute_arguments_signature
 		redefine
 			out
 		select
-			creation_objects_anchor
+			creation_objects_anchor,
+			result_type_signature
 		end
 
 create

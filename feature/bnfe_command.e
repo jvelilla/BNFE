@@ -59,20 +59,80 @@ feature -- Access
 			create Result.make (10)
 		end
 
-	description: STRING
-			-- Process description of Current.
-			-- Describes how Current uses `arguments', `commands' and `queries'
-			--	to perform its job.
-		attribute
-			create Result.make_empty
-		end
-
 feature -- Status Report
 
 	out: like {ANY}.out
 			--<Precursor>
 		do
-			Result := name.twin
+			Result := signature
+			Result.append_string_general (description_block)
+			Result.append_string_general (delta_attributes_block)
+			Result.append_string_general (sub_commands_block)
+			Result.append_string_general (sub_queries_block)
+		end
+
+	description_block: STRING
+			-- Block of description(s), if any.
+		do
+			create Result.make_empty
+			if not description.is_empty then
+				Result.append_character ('%N')
+				Result.append_character ('%T')
+				Result.append_character ('%T')
+				Result.append_string_general ("-- ")
+				Result.append_string_general (description)
+			end
+		end
+
+	delta_attributes_block: STRING
+			-- Block of delta_attributes(s), if any.
+		do
+			create Result.make_empty
+			if delta_attributes.count > 0 then
+				Result.append_character ('%N')
+				Result.append_string_general ("Delta_attributes")
+				across delta_attributes as ic_routines loop
+					Result.append_string_general (ic_routines.item.out)
+					Result.append_character ('%N')
+				end
+				Result.append_string_general ("end")
+			end
+		end
+
+	sub_queries_block: STRING
+			-- Block of sub_queries(s), if any.
+		do
+			create Result.make_empty
+			if sub_commands.count > 0 then
+				Result.append_character ('%N')
+				Result.append_string_general ("Command")
+				across sub_commands as ic_routines loop
+					Result.append_string_general (ic_routines.item.out)
+					Result.append_character ('%N')
+				end
+				Result.append_string_general ("end")
+			end
+		end
+
+	sub_commands_block: STRING
+			-- Block of sub_commands(s), if any.
+		do
+			create Result.make_empty
+			if sub_queries.count > 0 then
+				Result.append_character ('%N')
+				Result.append_string_general ("Query")
+				across sub_queries as ic_routines loop
+					Result.append_string_general (ic_routines.item.out)
+					Result.append_character ('%N')
+				end
+				Result.append_string_general ("end")
+			end
+		end
+
+	arguments_signature: STRING
+			--<Precursor>
+		do
+			create Result.make_empty
 			if arguments.count > 0 then
 				Result.append_character (' ')
 				Result.append_character ('(')
@@ -83,9 +143,9 @@ feature -- Status Report
 					Result.append_character (':')
 					Result.append_character (' ')
 					if attached {BNFE_FEATURE} ic_arguments.item.result_type as al_type then
-						Result.append_string_general (al_type.name)
+						Result.append_string_general (al_type.name.twin)
 					elseif attached ic_arguments.item.result_type as al_type and then attached al_type.generating_type as al_generating_type then
-						Result.append_string_general (al_generating_type)
+						Result.append_string_general (al_generating_type.twin)
 					end
 					if not ic_arguments.is_last then
 						Result.append_character (',')
@@ -94,6 +154,12 @@ feature -- Status Report
 				end
 				Result.append_character (')')
 			end
+		end
+
+	result_type_signature: STRING
+			--<Precursor>
+		do
+			create Result.make_empty
 		end
 
 end

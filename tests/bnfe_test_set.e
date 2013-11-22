@@ -23,6 +23,8 @@ feature -- Test routines
 			l_root_component,
 			l_component,
 			l_alt_component: BNFE_COMPONENT
+			l_feature: BNFE_FEATURE
+			l_attribute: BNFE_ATTRIBUTE [BOOLEAN]
 		do
 				-- Bnfe production
 			create l_root_component.make_with_objects (["Bnfe"])
@@ -46,6 +48,9 @@ feature -- Test routines
 
 				-- Aggregate production
 			l_component := l_root_component.Production.attached_deep_component_by_name ("Aggregate")
+			create l_attribute.make_with_objects (["is_aggregate", True])
+			l_attribute.set_description ("Is Current an Aggregate production?")
+			l_component.add_feature (l_attribute)
 			l_production := l_component.Production
 			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Component"]))
 			l_component.Production.add_specimen ("Something ::= This That The_other (e.g. Something consists of this, that and the other).")
@@ -55,12 +60,14 @@ feature -- Test routines
 			l_component := l_root_component.Production.attached_deep_component_by_name ("Choice")
 			l_production := l_component.Production
 			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Choice_construct"]))
+			l_component.Production.add_specimen ("Something ::= This or That or The_other (e.g. Something consists of this or that or the other).")
 			l_production.add_part (l_part)
 
-				-- Choice production
+				-- Repitition_construct production
 			l_component := l_root_component.Production.attached_deep_component_by_name ("Repitition")
 			l_production := l_component.Production
 			create l_part.make_as_repitition_with_component (True, create {BNFE_COMPONENT}.make_with_objects (["Repitition_construct"]))
+			l_component.Production.add_specimen ("Something ::= (This)+ (e.g. Something consists of one or more of This).")
 			l_production.add_part (l_part)
 
 				-- Choice_construct production
@@ -205,10 +212,12 @@ Kind_of_production ::=
 Aggregate ::=
 	{Component}+
 
+	-- Example: Something ::= This That The_other (e.g. Something consists of this, that and the other).
 
 Choice ::=
 	{Choice_construct}+
 
+	-- Example: Something ::= This or That or The_other (e.g. Something consists of this or that or the other).
 
 Choice_construct ::=
 	Component, Comma_character, Bar_character
@@ -217,6 +226,7 @@ Choice_construct ::=
 Repitition ::=
 	{Repitition_construct}+
 
+	-- Example: Something ::= (This)+ (e.g. Something consists of one or more of This).
 
 Repitition_construct ::=
 	Component, Plus_character, Asterick_character

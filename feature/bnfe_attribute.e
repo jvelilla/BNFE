@@ -54,7 +54,20 @@ feature -- Status Report
 	out: like {ANY}.out
 			--<Precursor>
 		do
-			Result := name.twin
+			Result := signature
+			Result.append_string_general (result_type_signature)
+		end
+
+	arguments_signature: STRING
+			--<Precursor>
+		do
+			create Result.make_empty
+		end
+
+	result_type_signature: STRING
+			--<Precursor>
+		do
+			create Result.make_empty
 			Result.append_character (':')
 			Result.append_character (' ')
 			if attached {BNFE_FEATURE} result_type as al_type then
