@@ -15,6 +15,30 @@ inherit
 
 feature -- Test routines
 
+	test_deep_production
+			-- Tests about BNFE_PRODUCTION.out
+		local
+			l_production: BNFE_PRODUCTION
+			l_kind: BNFE_PRODUCTION_KIND
+			l_component: BNFE_COMPONENT
+		do
+			create l_production.make_with_name ("Bnfe")
+			create l_kind.make_as_named_repitition (False, "Production")
+			l_production.add_part (l_kind)
+				-- First component ...
+			l_component := l_kind.components [1]
+				-- Production: Production
+			create l_kind.make_as_aggregate_with_components (<<create {BNFE_COMPONENT}.make_with_objects (["Construct"]), create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"])>>)
+			create l_kind.make_as_aggregate
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Construct"]))
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"]))
+			l_component.Production.add_part (l_kind)
+			create l_kind.make_as_repitition (False)
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Specimen"]))
+			l_component.Production.add_part (l_kind)
+			assert_strings_equal ("level_2", deep_production_string, l_production.deep_out)
+		end
+
 	test_bnfe
 			-- Tests about BNFE_CONSTRUCT
 		local
@@ -55,7 +79,7 @@ feature -- Test routines
 			l_kind.add_component (l_component)
 			create l_component.make_with_objects (["The_other"])
 			l_kind.add_component (l_component)
-			assert_strings_equal ("repitition_out_false", "This & That & The_other", l_kind.out)
+			assert_strings_equal ("repitition_out_false", "This, That, The_other", l_kind.out)
 
 				-- Attribute
 			create l_attribute.make_with_objects (["my_attribute", "my_attribute_result_string"])
@@ -117,11 +141,25 @@ My_production ::=
 	{This}+
 	{That}*
 	{The_other}+
-	Some_aggregate_1 & Some_aggregate_2 & Some_aggregate_3
+	Some_aggregate_1, Some_aggregate_2, Some_aggregate_3
 	{Some_choice_1 | Some_aggregate_2 | Some_aggregate_3}
 
 
 ]"
+
+	deep_production_string: STRING = "[
+
+Bnfe ::=
+	{Production}*
+
+
+Production ::=
+	Construct, Kind_of_production
+	{Specimen}*
+
+
+]"
+
 end
 
 

@@ -21,7 +21,8 @@ create
 	make_as_choice_with_component,
 	make_as_choice_with_components,
 	make_as_repitition,
-	make_as_repitition_with_component
+	make_as_repitition_with_component,
+	make_as_named_repitition
 
 feature {NONE} -- Initialization
 
@@ -94,6 +95,17 @@ feature {NONE} -- Initialization
 			has_component: components.has (a_component)
 		end
 
+	make_as_named_repitition (a_one_or_more: like is_one_or_more; a_name: like {BNFE_COMPONENT}.name)
+		local
+			l_component: attached like component_anchor
+		do
+			make_as_repitition (a_one_or_more)
+			create l_component.make_with_objects ([a_name])
+			components.force (l_component)
+		ensure
+			component_added: components.count = 1
+		end
+
 feature -- Access
 
 	components: ARRAYED_LIST [attached like component_anchor]
@@ -135,8 +147,7 @@ feature -- Status Report
 				elseif is_choice and ic_components.is_last then			-- CHOICE Close with '}'
 					Result.append_character ('}')
 				elseif is_aggregate and not ic_components.is_last then	-- AGGREGATE Append " & "
-					Result.append_character (' ')
-					Result.append_character ('&')
+					Result.append_character (',')
 					Result.append_character (' ')
 				elseif is_repitition and ic_components.is_last then		-- REPITITION Close with '}'
 					Result.append_character ('}')

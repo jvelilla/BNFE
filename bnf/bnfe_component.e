@@ -16,7 +16,7 @@ inherit
 
 create
 	make_with_objects
-
+	
 feature -- Access
 
 	features: ARRAYED_LIST [BNFE_FEATURE]
@@ -25,9 +25,11 @@ feature -- Access
 			create Result.make (10)
 		end
 
-	production: detachable BNFE_PRODUCTION
+	production: BNFE_PRODUCTION
 			-- Optional production for Current.
-			--| A Product Construct is a root Component.
+		once ("object")
+			create Result.make_with_name (name)
+		end
 
 feature -- Settings
 
@@ -37,14 +39,6 @@ feature -- Settings
 			features.force (a_feature)
 		ensure
 			feature_added: features.has (a_feature)
-		end
-
-	set_production (a_production: attached like production)
-			-- Set `production' with `a_production'.
-		do
-			production := a_production
-		ensure
-			production_set: production ~ a_production
 		end
 
 feature -- Status Report

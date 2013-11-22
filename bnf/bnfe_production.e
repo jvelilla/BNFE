@@ -66,7 +66,18 @@ feature -- Access
 			create Result.make (10)
 		end
 
+	is_detachable: BOOLEAN
+			-- Can Current be Void?
+
 feature -- Settings
+
+	set_is_detachable (a_is_detachable: like is_detachable)
+			-- Set `is_detachable' with `a_is_detachable'.
+		do
+			is_detachable := a_is_detachable
+		ensure
+			is_detachable_set: is_detachable = a_is_detachable
+		end
 
 	add_part (a_part: attached like part_anchor)
 			-- Add `a_part' to `parts' of Current.
@@ -108,11 +119,18 @@ feature -- Status Report
 			create Result.make_empty
 			Result.append_character ('%N')
 			Result.append_string_general (construct.name)
-			Result.append_string_general (" ::=%N")
-			across parts as ic_parts loop
-				Result.append_character ('%T')
-				Result.append_string_general (ic_parts.item.out)
-				Result.append_character ('%N')
+			if parts.count > 0 then
+				Result.append_string_general (" ::=")
+				if is_detachable then
+					Result.append_string_general (" detachable%N")
+				else
+					Result.append_character ('%N')
+				end
+				across parts as ic_parts loop
+					Result.append_character ('%T')
+					Result.append_string_general (ic_parts.item.out)
+					Result.append_character ('%N')
+				end
 			end
 			Result.append_character ('%N')
 			Result.append_string_general (construct.out)
@@ -124,7 +142,9 @@ feature -- Status Report
 			Result := out
 			across parts as ic_parts loop
 				across ic_parts.item.components as ic_components loop
-					if attached ic_components.item.production as al_production then
+					if attached ic_components.item.production as al_production
+						and then al_production.parts.count > 0
+					then
 						Result.append_string_general (al_production.out)
 					end
 				end
