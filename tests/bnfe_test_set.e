@@ -20,22 +20,33 @@ feature -- Test routines
 		local
 			l_production: BNFE_PRODUCTION
 			l_kind: BNFE_PRODUCTION_KIND
-			l_component: BNFE_COMPONENT
+			l_component, l_next_component: BNFE_COMPONENT
 		do
 			create l_production.make_with_name ("Bnfe")
 			create l_kind.make_as_named_repitition (False, "Production")
 			l_production.add_part (l_kind)
 				-- First component ...
-			l_component := l_kind.components [1]
 				-- Production: Production
-			create l_kind.make_as_aggregate_with_components (<<create {BNFE_COMPONENT}.make_with_objects (["Construct"]), create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"])>>)
+			l_component := l_kind.components [1]
+--			create l_kind.make_as_aggregate_with_components (<<create {BNFE_COMPONENT}.make_with_objects (["Construct"]), create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"])>>)
 			create l_kind.make_as_aggregate
 			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Construct"]))
 			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Kind_of_production"]))
+			check attached l_kind.component_by_name ("Kind_of_production") as al_component then
+				l_next_component := al_component
+			end
+			assert_strings_equal ("Kind_of_production", "Kind_of_production", l_next_component.name)
 			l_component.Production.add_part (l_kind)
 			create l_kind.make_as_repitition (False)
 			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Specimen"]))
 			l_component.Production.add_part (l_kind)
+--			assert_strings_equal ("level_2", deep_production_string, l_production.deep_out)
+				-- Production: Kind_of_production
+			create l_kind.make_as_choice
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Aggregate"]))
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Choice"]))
+			l_kind.add_component (create {BNFE_COMPONENT}.make_with_objects (["Repitition"]))
+			l_next_component.Production.add_part (l_kind)
 			assert_strings_equal ("level_2", deep_production_string, l_production.deep_out)
 		end
 

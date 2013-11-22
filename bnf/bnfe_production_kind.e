@@ -116,6 +116,15 @@ feature -- Access
 
 feature -- Status Report
 
+	component_by_name (a_name: like {BNFE_COMPONENT}.name): detachable BNFE_COMPONENT
+			-- Fetch component from `components' with `a_name'.
+		do
+			across components as ic_components until ic_components.item.name.same_string (a_name) loop
+				ic_components.forth
+				Result := ic_components.item
+			end
+		end
+
 	is_aggregate: BOOLEAN
 
 	is_choice: BOOLEAN
