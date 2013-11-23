@@ -61,4 +61,10 @@ feature -- Status Report
 			end
 		end
 
+	deep_out: like Production.deep_out
+			-- Deep out of Current.
+		do
+			Result := Production.deep_out
+		end
+
 end

@@ -9,8 +9,9 @@ class
 	BNFE_PRODUCTION_KIND
 
 inherit
-	ANY
+	BNFE_BASE
 		redefine
+			is_symbols_only,
 			out
 		end
 create
@@ -152,7 +153,21 @@ feature -- Access
 			create Result.make (10)
 		end
 
+	production: attached like internal_production
+			-- Attached version of `internal_production'.
+			--| The production parent of Current.
+		do
+			check has_production: attached internal_production as al_production then Result := al_production end
+		end
+
 feature -- Status Report
+
+	is_symbols_only: BOOLEAN
+			--<Precursor>
+		do
+			check has_name: not production.name.is_empty end
+			Result := across production.name as ic_name all valid_symbol_characters.has (ic_name.item) end
+		end
 
 	attached_component_by_name (a_name: like {BNFE_COMPONENT}.name): BNFE_COMPONENT
 			-- Fetch an attached version of `component_by_name'.
@@ -192,6 +207,9 @@ feature -- Status Report
 	is_one_or_more: BOOLEAN
 			-- If `is_repitition', then is Current One-or-more?
 
+	is_optional: BOOLEAN
+			-- Is Current an "optional" kind?
+
 	one_or_more: BOOLEAN
 			-- One or more constant.
 		once
@@ -204,10 +222,31 @@ feature -- Status Report
 			Result := not one_or_more
 		end
 
+	contains_symbols_only (a_string: STRING): BOOLEAN
+			-- Does `a_string' contain values only?
+		require
+			non_empty: not a_string.is_empty
+		do
+			Result := across a_string as ic_string all valid_symbol_characters.has (ic_string.item) end
+		end
+
 	out: attached like {ANY}.out
+			--<Precursor>
+		local
+			l_closing_char: STRING
 		do
 			create Result.make_empty
+			if is_optional and not is_repitition then
+				Result.append_character ('[')
+			end
+
 			across components as ic_components loop
+				if contains_symbols_only (ic_components.item.name) then
+					l_closing_char := "%""
+				else
+					l_closing_char := ""
+				end
+				check has_name: not ic_components.item.name.is_empty end
 				if ic_components.is_first then
 					if is_choice then
 						Result.append_character ('(')
@@ -216,7 +255,9 @@ feature -- Status Report
 					end
 				end
 
+				Result.append_string_general (l_closing_char)
 				Result.append_string_general (ic_components.item.name)
+				Result.append_string_general (l_closing_char)
 
 				if is_choice and not ic_components.is_last then			-- CHOICE Append " | "
 					Result.append_character (' ')
@@ -225,8 +266,8 @@ feature -- Status Report
 				elseif is_choice and ic_components.is_last then			-- CHOICE Close with '}'
 					Result.append_character (')')
 				elseif is_aggregate and not ic_components.is_last then	-- AGGREGATE Append " & "
-					Result.append_character (',')
-					Result.append_character (' ')
+					Result.append_character ('%N')
+					Result.append_character ('%T')
 				elseif is_repitition and ic_components.is_last then		-- REPITITION Close with '}'
 					Result.append_character ('}')
 				end
@@ -236,9 +277,21 @@ feature -- Status Report
 			elseif is_repitition then
 				Result.append_character ('*')
 			end
+				-- Optional closing
+			if is_optional and not is_repitition then
+				Result.append_character (']')
+			end
 		end
 
 feature -- Settings
+
+	set_production (a_production: like production)
+			-- Set `production' with `a_production'.
+		do
+			internal_production := a_production
+		ensure
+			production_set: production ~ a_production
+		end
 
 	add_component (a_component: BNFE_COMPONENT)
 			-- Add `a_component' to `components'.
@@ -282,6 +335,19 @@ feature -- Settings
 		ensure
 			not_aggregate_or_choice: not is_aggregate and not is_choice
 		end
+
+	set_is_optional (a_flag: BOOLEAN)
+			-- Set `is_optional' with `a_flag'.
+		do
+			is_optional := a_flag
+		ensure
+			is_optional_set: is_optional = a_flag
+		end
+
+feature {NONE} -- Implemenatation
+
+	internal_production: detachable BNFE_PRODUCTION
+			-- Internal storage for related parent production.
 
 feature {NONE} -- Implementation: Anchors
 

@@ -109,6 +109,7 @@ feature -- Settings
 			-- Add `a_part' to `parts' of Current.
 		do
 			parts.force (a_part)
+			a_part.set_production (Current)
 		ensure
 			has_part: parts.has (a_part)
 		end

@@ -28,5 +28,7 @@
 	</target>
 	<target name="test" extends="bnfe">
 		<root class="APPLICATION" feature="make"/>
+		<library name="editor" location="$ISE_LIBRARY\library\editor\editor-safe.ecf"/>
+		<library name="vision2" location="$ISE_LIBRARY\library\vision2\vision2-safe.ecf"/>
 	</target>
 </system>
