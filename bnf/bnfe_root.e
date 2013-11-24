@@ -17,4 +17,12 @@ inherit
 create
 	make_with_objects
 
+feature -- Access
+
+	productions: ARRAYED_LIST [BNFE_PRODUCTION]
+			-- Productions related to Current.
+		attribute
+			create Result.make (10)
+		end
+
 end
