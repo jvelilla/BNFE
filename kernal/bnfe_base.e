@@ -11,6 +11,8 @@ deferred class
 inherit
 	CREATEABLE
 
+	STORABLE
+
 feature {NONE} -- Initialization
 
 	make_with_objects (a_objects: attached like creation_objects_anchor)
@@ -38,6 +40,26 @@ feature -- Access
 			create Result.make_empty
 		end
 
+	items: ARRAYED_LIST [attached like items_anchor]
+			-- A list of items contained by Current.
+		deferred
+		end
+
+	remove (a_item: attached like items_anchor)
+			-- Remove `a_item' from `items'
+		do
+			from items.start
+			until items.exhausted
+			loop
+				if items.item_for_iteration ~ a_item then
+					items.remove
+				end
+				items.forth
+			end
+		ensure
+			item_removed: not items.has (a_item)
+		end
+
 	bnfe_type: STRING
 			-- Type of Current as a BNF-E entity.
 		local
@@ -62,9 +84,19 @@ feature -- Access
 				l_new_generics.prepend_string_general ("--> ")
 				Result.replace_substring_all (l_generics, l_new_generics)
 			end
+		ensure
+			has_result: not Result.is_empty
 		end
 
 feature -- Settings
+
+	is_terminal: BOOLEAN
+			-- Is Current a terminal construct?
+		do
+			Result := items.count = 0
+		ensure
+			result_empty_items: Result = (items.count = 0)
+		end
 
 	set_name (a_name: like name)
 			-- Set `name' with `a_name'.
@@ -92,7 +124,16 @@ feature {NONE} -- Implementation: Constants
 
 	valid_symbol_characters: STRING = ":=-"
 
+feature {NONE} -- Implementation: Anchor
+
+	items_anchor: detachable ANY
+			-- Type anchor for `items'.
+
 invariant
+	never_attached: not attached items_anchor
+	consistent_terminal: is_terminal implies items.count = 0
+--	symbols_terminal: is_symbols_only implies is_terminal
+--	non_empty_name: not name.is_empty
 	valid_name: across name as ic_name all valid_name_characters.has (ic_name.item) end
 				or across name as ic_name all valid_symbol_characters.has (ic_name.item) end
 	mutex_name_or_symbol: across name as ic_name some valid_symbol_characters.has (ic_name.item) end

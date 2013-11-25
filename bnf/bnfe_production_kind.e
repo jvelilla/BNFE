@@ -10,7 +10,11 @@ class
 
 inherit
 	BNFE_BASE
+		rename
+			items as components,
+			items_anchor as component_anchor
 		redefine
+			component_anchor,
 			is_symbols_only,
 			out
 		end

@@ -9,8 +9,13 @@ class
 	BNFE_COMPONENT
 
 inherit
-	BNFE_ROOT
+	BNFE_BASE
+		rename
+			items as features,
+			items_anchor as features_anchor
 		redefine
+			features,
+			features_anchor,
 			out
 		end
 
@@ -19,7 +24,7 @@ create
 
 feature -- Access
 
-	features: ARRAYED_LIST [BNFE_FEATURE]
+	features: ARRAYED_LIST [attached like features_anchor]
 			-- List of zero, one, or more features of Current.
 		attribute
 			create Result.make (10)
@@ -33,7 +38,7 @@ feature -- Access
 
 feature -- Settings
 
-	add_feature (a_feature: BNFE_FEATURE)
+	add_feature (a_feature: attached like features_anchor)
 			-- Add `a_feature' to `features' of Current.
 		do
 			features.force (a_feature)
@@ -66,5 +71,10 @@ feature -- Status Report
 		do
 			Result := Production.deep_out
 		end
+
+feature {NONE} -- Implementation: Anchors
+
+	features_anchor: detachable BNFE_FEATURE
+			--<Precursor>
 
 end

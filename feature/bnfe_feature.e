@@ -38,6 +38,12 @@ feature -- Access
 			create Result.make_empty
 		end
 
+	items: ARRAYED_LIST [attached like items_anchor]
+			-- List of subordinate items like Current.
+		attribute
+			create Result.make (10)
+		end
+
 feature -- Settings
 
 	set_description (a_description: like description)
