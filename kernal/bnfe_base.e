@@ -10,8 +10,14 @@ deferred class
 
 inherit
 	CREATEABLE
+		redefine
+			out
+		end
 
 	STORABLE
+		undefine
+			out
+		end
 
 feature {NONE} -- Initialization
 
@@ -109,6 +115,17 @@ feature -- Settings
 		end
 
 feature -- Status Report
+
+	out: STRING
+			--<Precursor>
+		do
+			create Result.make_empty
+		end
+
+	deep_out: STRING
+			-- Deep `out' of Current.
+		deferred
+		end
 
 	is_symbols_only: BOOLEAN
 			-- Is `name' a collection of `valid_symbol_characters' only?

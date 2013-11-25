@@ -33,6 +33,14 @@ feature -- Access
 			create Result.make (10)
 		end
 
+feature -- Status Report
+
+	deep_out: like out
+			--<Precursor>
+		do
+			Result := out
+		end
+
 feature {NONE} -- Implementation: Anchors
 
 	production_anchor: detachable BNFE_PRODUCTION

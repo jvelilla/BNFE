@@ -51,6 +51,12 @@ feature -- Settings
 
 feature -- Status Report
 
+	deep_out: like out
+			--<Precursor>
+		do
+			Result := out
+		end
+
 	out: like {ANY}.out
 			--<Precursor>
 		do

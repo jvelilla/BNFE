@@ -234,6 +234,12 @@ feature -- Status Report
 			Result := across a_string as ic_string all valid_symbol_characters.has (ic_string.item) end
 		end
 
+	deep_out: like out
+			--<Precursor>
+		do
+			Result := out
+		end
+
 	out: attached like {ANY}.out
 			--<Precursor>
 		local

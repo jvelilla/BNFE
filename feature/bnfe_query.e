@@ -28,6 +28,8 @@ inherit
 	BNFE_ATTRIBUTE [G]
 		rename
 			arguments_signature as attribute_arguments_signature
+		undefine
+			deep_out
 		redefine
 			out
 		select

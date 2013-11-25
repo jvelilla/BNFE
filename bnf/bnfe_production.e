@@ -16,7 +16,9 @@ inherit
 		redefine
 			creation_objects_anchor,
 			make_with_objects,
-			out
+			out,
+			deep_out,
+			set_name
 		end
 
 create
@@ -96,6 +98,16 @@ feature -- Access
 		end
 
 feature -- Settings
+
+	set_name (a_name: like name)
+			--<Precursor>
+			--| Also set the `construct' name.
+		do
+			Precursor (a_name)
+			construct.set_name (a_name)
+		ensure then
+			construct_name_set: construct.name.same_string (a_name)
+		end
 
 	set_is_detachable (a_is_detachable: like is_detachable)
 			-- Set `is_detachable' with `a_is_detachable'.
