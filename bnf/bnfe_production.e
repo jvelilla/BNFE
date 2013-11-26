@@ -199,6 +199,20 @@ feature -- Status Report
 					then
 						Result.append_string_general (al_production.deep_out)
 					end
+					if attached ic_components.item.features as al_features then
+						if al_features.count > 0 then
+							Result.append_character ('%N')
+							Result.append_string_general ("feature -- ")
+							Result.append_string_general (ic_components.item.name)
+							Result.append_character ('%N')
+							across al_features as ic_features loop
+								Result.append_character ('%T')
+								Result.append_string_general (ic_features.item.signature)
+								Result.append_string_general (": " + ic_features.item.result_type_signature)
+								Result.append_character ('%N')
+							end
+						end
+					end
 				end
 			end
 		end

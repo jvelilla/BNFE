@@ -321,6 +321,9 @@ Aggregate ::=
 
 	-- Example: Something ::= This That The_other (e.g. Something consists of this, that and the other).
 
+feature -- Aggregate
+	is_aggregate: BOOLEAN
+
 Choice ::=
 	{Choice_construct}+
 
